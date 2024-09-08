@@ -1,0 +1,128 @@
+
+
+### Step 1: Launch an EC2 Instance
+
+1. **Log in to AWS Management Console**:
+   - Go to the [AWS Management Console](https://aws.amazon.com/console/).
+
+2. **Launch an EC2 Instance**:
+   - Navigate to **EC2 Dashboard**.
+   - Click on **Launch Instance**.
+   - Choose an Amazon Machine Image (AMI). For WordPress, you can select a **WordPress AMI** or a basic **Ubuntu** server.
+   - Choose an instance type. The `t2.micro` is often sufficient for small websites.
+   - Configure the instance details as needed.
+   - Add storage if necessary.
+   - Configure a security group to allow HTTP (port 80) and HTTPS (port 443) traffic.
+   - Review and launch the instance.
+
+3. **Access Your Instance**:
+   - After the instance is running, connect to it via SSH. You’ll need the instance's public IP address and your private key file (usually a `.pem` file).
+   - Use a command like:
+     ```bash
+     ssh -i your-key-file.pem ubuntu@your-instance-public-ip
+     ```
+
+### Step 2: Install a Web Server and PHP
+
+1. **Update the Package Lists**:
+   ```bash
+   sudo apt update
+   ```
+
+2. **Install Apache**:
+   ```bash
+   sudo apt install apache2
+   ```
+
+3. **Install PHP**:
+   ```bash
+   sudo apt install php libapache2-mod-php
+   ```
+
+4. **Restart Apache** to apply changes:
+   ```bash
+   sudo systemctl restart apache2
+   ```
+
+### Step 3: Install MySQL
+
+1. **Install MySQL**:
+   ```bash
+   sudo apt install mysql-server
+   ```
+
+2. **Secure MySQL Installation**:
+   ```bash
+   sudo mysql_secure_installation
+   ```
+
+3. **Create a WordPress Database**:
+   ```bash
+   sudo mysql
+   ```
+   Inside the MySQL prompt:
+   ```sql
+   CREATE DATABASE wordpress;
+   GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'localhost' IDENTIFIED BY 'password';
+   FLUSH PRIVILEGES;
+   EXIT;
+   ```
+
+### Step 4: Install WordPress
+
+1. **Download and Extract WordPress**:
+   ```bash
+   wget https://wordpress.org/latest.tar.gz
+   tar -xzvf latest.tar.gz
+   ```
+
+2. **Configure WordPress**:
+   - Move the WordPress files to the web root:
+     ```bash
+     sudo cp -r wordpress/* /var/www/html/
+     ```
+   - Configure permissions:
+     ```bash
+     sudo chown -R www-data:www-data /var/www/html/
+     sudo chmod -R 755 /var/www/html/
+     ```
+
+3. **Create a `wp-config.php` File**:
+   - Copy the sample configuration file and edit it:
+     ```bash
+     cd /var/www/html/
+     sudo cp wp-config-sample.php wp-config.php
+     sudo nano wp-config.php
+     ```
+   - Update the database settings in `wp-config.php`:
+     ```php
+     define('DB_NAME', 'wordpress');
+     define('DB_USER', 'wpuser');
+     define('DB_PASSWORD', 'password');
+     define('DB_HOST', 'localhost');
+     ```
+
+### Step 5: Complete WordPress Installation via Web Interface
+
+1. **Access Your WordPress Site**:
+   - Open your web browser and navigate to `http://your-instance-public-ip`.
+
+2. **Follow the On-Screen Instructions**:
+   - You will be prompted to set up your WordPress site. Provide the site title, username, password, and email.
+
+### Step 6: Create and Customize Your Welcome Page
+
+1. **Log in to WordPress Admin**:
+   - Go to `http://your-instance-public-ip/wp-admin` and log in with the credentials you set up.
+
+2. **Create a New Page**:
+   - Navigate to **Pages** > **Add New**.
+   - Title your page (e.g., "Welcome") and add your desired content.
+   - Publish the page.
+
+3. **Set Your Welcome Page as the Front Page**:
+   - Go to **Settings** > **Reading**.
+   - Set the “Your homepage displays” option to “A static page” and select your newly created welcome page from the dropdown.
+
+4. **Customize Your Page**:
+   - You can use the WordPress block editor or install a page builder plugin to create a more sophisticated layout.
